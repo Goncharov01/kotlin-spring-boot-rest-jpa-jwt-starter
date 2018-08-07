@@ -1,6 +1,7 @@
 package osahner.web
 
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -19,4 +20,13 @@ class IndexController {
   @GetMapping(value = ["/restricted"])
   @PreAuthorize("hasAuthority('STANDARD_USER')")
   fun helloRestrictedWorld() = "Pong!"
+
+  @GetMapping (value= "/autorize")
+ fun autorize():String  {
+    val authorization = SecurityContextHolder.getContext().authentication
+    return authorization.name
+
+
+
+  }
 }

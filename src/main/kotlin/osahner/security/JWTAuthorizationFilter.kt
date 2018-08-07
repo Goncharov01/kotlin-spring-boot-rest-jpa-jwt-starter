@@ -27,30 +27,45 @@ class JWTAuthorizationFilter(authManager: AuthenticationManager) : BasicAuthenti
     res: HttpServletResponse,
     chain: FilterChain
   ) {
+    //достали из hedr со значением аутаризейшен
     val header = req.getHeader(HEADER_STRING)
+      // Проверели что он не пустой и что начинается со слова Beare
     if (header == null || !header.startsWith(TOKEN_PREFIX)) {
+      // В случаи успеха.пустили по цепочке дальше
       chain.doFilter(req, res)
+      //выйти из цикла
       return
     }
+      //по данным из запроса получили объект аутификации
     val authentication = getAuthentication(req)
+    //передали контекс сикюрити аутификацию
     SecurityContextHolder.getContext().authentication = authentication
+    //передали дальше по цепочке
     chain.doFilter(req, res)
   }
-
+  //метод принемает запрос а выдаёт токен
   private fun getAuthentication(request: HttpServletRequest): UsernamePasswordAuthenticationToken? {
+    //получаем токен из строчки хедера аутаризатион
     val token = request.getHeader(HEADER_STRING)
+      //если токен не пустой
     return if (token != null) {
+      //с помощью библеотеки начинаем разбирать токен на части
       val claims = Jwts.parser()
+        //убираем секрет
         .setSigningKey(SECRET)
+        //убираем токен префикс биар
         .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+        //переменная user будет равна значению полю суб из токена
       val user = claims
         .body
         .subject
-
+        //создаем пустой список для ролей
       val authorities = ArrayList<GrantedAuthority>()
+        //берем поле ауф итапретируем как MutableList берем из этого листа роль и переписываем ее в список ауторитис
       (claims.body["auth"] as MutableList<*>).forEach { role -> authorities.add(SimpleGrantedAuthority(role.toString())) }
-
+//если юзер не пустой
       if (user != null) {
+        //создаем экземпляр класса куда мы перемещаем имя и список ролей
         UsernamePasswordAuthenticationToken(user, null, authorities)
       } else null
     } else null
