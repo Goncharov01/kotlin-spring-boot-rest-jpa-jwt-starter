@@ -29,6 +29,11 @@ class User(
     joinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")],
     inverseJoinColumns = [JoinColumn(name = "role_id", referencedColumnName = "id")]
   )
-  var roles: Collection<Role>? = null
+  var roles: Collection<Role>? = null,
+  @OneToMany(mappedBy = "user",  fetch = FetchType.LAZY)
+@JoinColumn (name="company")
+  var company: Set<Company>? = null
+
+
 )
 
